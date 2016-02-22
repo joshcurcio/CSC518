@@ -1,0 +1,75 @@
+<!doctype html>
+<html ng-app="myApp">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/1.0.0/angularfire.min.js"></script>
+</head>
+
+<body ng-controller="MyController">
+
+    <!-- CHAT MARKUP -->
+    <div class="assignment 5">
+        <header>User Movie Collection</header>
+        <label for="Email Input:">Email:</label>
+        <input ng-model="email" type="text" id="email" placeholder="Email">
+        <br/>
+        <label for="Password Input:">Password:</label>
+        <input ng-model="password" type="password" id="password" placeholder="password">
+        <br/>
+        <button ng-click="register()">Register</button>
+        <br/>
+        <button ng-click="login()">Login</button>
+        <br/>
+    </div>
+
+
+    <script>
+        var myApp = angular.module("myApp", ["firebase"]);
+
+        myApp.controller("MyController", ["$scope", "$firebaseArray",
+            function($scope, $firebaseArray) {
+                //CREATE A FIREBASE REFERENCE
+                var ref = new Firebase("https://csc518.firebaseio.com/");
+
+                $scope.login = function() {
+                    ref.authWithPassword({
+                        email: $scope.email,
+                        password: $scope.password
+                    }, function(error, authData) {
+                        if (error) {
+                            console.log("Login Failed!", error);
+                        } else {
+                            console.log("Authenticated successfully with payload:", authData);
+
+                            window.location = 'file:///C:/Users/Josh31/Desktop/assignment5/moviecollection.html';
+                        }
+                    });
+                    $scope.email = "";
+                    $scope.password = "";
+                }
+
+                $scope.register = function() {
+                    ref.createUser({
+                        email: $scope.email,
+                        password: $scope.password
+                    }, function(error, userData) {
+                        if (error) {
+                            console.log("Error creating user:", error);
+                        } else {
+                            console.log("Successfully created user account with uid:", userData.uid);
+                            $scope.login();
+
+                        }
+                    });
+                    $scope.email = "";
+                    $scope.password = "";
+                }
+            }
+        ]);
+
+    </script>
+</body>
+
+</html>

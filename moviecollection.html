@@ -1,0 +1,95 @@
+<!doctype html>
+<html ng-app="myApp">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/1.0.0/angularfire.min.js"></script>
+</head>
+
+<body ng-controller="MyController">
+
+    <!-- CHAT MARKUP -->
+    <div class="assignment 5">
+        <header>User Movie Collection</header>
+        <label for="Title Input:">Title:</label>
+        <input ng-model="title" type="text" id="title" placeholder="Title">
+        <br/>
+        <label for="Genre Input:">Genre:</label>
+        <input ng-model="genre" type="text" id="genre" placeholder="Genre">
+        <br/>
+        <label for="Release Date Input:">Release Date:</label>
+        <input ng-model="releaseDate" type="text" id="releaseDate" placeholder="Release Date">
+        <br/>
+        <button ng-click="addMovie()">Add Movie</button>
+        <br/>
+        <button ng-click="logout()">Logout</button>
+        <br/>
+        <br/>
+        <ul>
+            <li ng-repeat="movie in movieCollection">
+                <strong class="movieCollection">
+                    Title:  </strong> {{ movie.$id }}
+                <ul>
+                    <li> <strong>Genre: </strong> {{ movie.genre }} </li>
+                    <li> <strong>Release Date: </strong> {{movie.releaseDate}} </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+
+    <script>
+        var myApp = angular.module("myApp", ["firebase"]);
+
+        myApp.controller("MyController", ["$scope", "$firebaseArray",
+            function($scope, $firebaseArray) {
+
+
+                var ref = new Firebase("https://csc518.firebaseio.com");
+
+                var authData = ref.getAuth();
+
+                var usersRef = new Firebase("http://csc518.firebaseio.com/users/");
+
+
+                if (authData) {
+                    //console.log("User " + authData.uid + " is logged in with " + authData.provider);
+                    var userRef = usersRef.child(authData.uid);
+                    var movieRef = userRef.child("Movies");
+                    $scope.movieCollection = $firebaseArray(movieRef);
+
+                    $scope.addMovie = function() {
+                        movieRef.child($scope.title).set({
+                            genre: $scope.genre,
+                            releaseDate: $scope.releaseDate
+                        });
+
+                        clearTextBoxes();
+                    }
+
+                    function clearTextBoxes() {
+                        $scope.genre = "";
+                        $scope.title = "";
+                        $scope.releaseDate = "";
+                    }
+
+                    $scope.logout = function() {
+                        ref.unauth();
+                        $scope.movieCollection = "";
+                        window.location = 'file:///C:/Users/Josh31/Desktop/assignment5/loginregister.html';
+                    }
+
+                } else {
+                    console.log("User is logged out");
+                    window.location = 'file:///C:/Users/Josh31/Desktop/assignment5/loginregister.html';
+                }
+
+
+            }
+        ]);
+
+    </script>
+</body>
+
+</html>
